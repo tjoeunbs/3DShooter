@@ -35,6 +35,19 @@ public class Player : MonoBehaviour
 
     public Weapon equipWeapon;
 
+    bool swapKeyButton1;
+    bool swapKeyButton2;
+    bool swapKeyButton3;
+
+    bool isSwapWeapon = false;
+
+    int equipWeaponIndex = -1;
+
+    public GameObject[] grenades;
+
+    public int hasGrenade;
+    public int maxHasGrenade;
+
     private void Awake()
     {
         anim = GetComponentInChildren<Animator>();
@@ -60,6 +73,13 @@ public class Player : MonoBehaviour
         walkKeyDown = Input.GetButton("Walk");
         jumpKeyDown = Input.GetButtonDown("Jump");
         interactionKeyDown = Input.GetButtonDown("Interaction");
+
+        swapKeyButton1 = Input.GetButtonDown("Swap1");
+        if (swapKeyButton1)
+            Debug.Log("ÀÔ·Â °ª : " + swapKeyButton1);
+        swapKeyButton2 = Input.GetButtonDown("Swap2");
+        swapKeyButton3 = Input.GetButtonDown("Swap3");
+
         attackKeyDown = Input.GetButtonDown("Fire1");
 
         Move();
@@ -67,6 +87,8 @@ public class Player : MonoBehaviour
         Dodge();
 
         Attack();
+
+        Swap();
 
         Interaction();
     }
@@ -92,6 +114,9 @@ public class Player : MonoBehaviour
 
         if (isDodge)
             moveVec = dodgeVec;
+
+        if (isSwapWeapon)
+            moveVec = Vector3.zero;
 
         transform.position += moveVec * speed * (walkKeyDown ? 0.3f : 1f) * Time.deltaTime;
 
@@ -133,6 +158,43 @@ public class Player : MonoBehaviour
         isDodge = false;
     }
 
+    void Swap()
+    {
+        if (swapKeyButton1 && (!hasWeapons[0] || equipWeaponIndex == 0))
+            return;
+        if (swapKeyButton2 && (!hasWeapons[1] || equipWeaponIndex == 1))
+            return;
+        if (swapKeyButton3 && (!hasWeapons[2] || equipWeaponIndex == 2))
+            return;
+
+        int weaponIndex = -1;
+        if (swapKeyButton1) weaponIndex = 0;
+        if (swapKeyButton2) weaponIndex = 1;
+        if (swapKeyButton3) weaponIndex = 2;
+
+        if ((swapKeyButton1 || swapKeyButton2 || swapKeyButton3) && !isJump && !isDodge)
+        {
+            if(equipWeapon != null)
+            {
+                equipWeapon.gameObject.SetActive(false);
+            }
+
+            equipWeaponIndex = weaponIndex;
+            equipWeapon = weapons[weaponIndex].GetComponent<Weapon>();
+            equipWeapon.gameObject.SetActive(true);
+
+            anim.SetTrigger("doSwap");
+            isSwapWeapon = true;
+
+            Invoke("SwapOut", 0.4f);
+        }
+    }
+
+    void SwapOut()
+    {
+        isSwapWeapon = false;
+    }
+
     void Attack()
     {
         if (equipWeapon == null)
@@ -141,7 +203,7 @@ public class Player : MonoBehaviour
         attackDelay += Time.deltaTime;
         isAttackReady = equipWeapon.rate < attackDelay;
 
-        if (attackKeyDown && isAttackReady && !isDodge)
+        if (attackKeyDown && isAttackReady && !isDodge && !isSwapWeapon)
         {
             equipWeapon.Use();
             attackDelay = 0;
@@ -165,7 +227,15 @@ public class Player : MonoBehaviour
         if (other.tag == "Item")
         {
             Item item = other.GetComponent<Item>();
-            
+            if (item.type == Item.Type.Grenade)
+            {
+                if (hasGrenade == maxHasGrenade)
+                    return;
+
+                grenades[hasGrenade].SetActive(true);
+                hasGrenade += item.value;
+            }
+            Destroy(other.gameObject);
         }
     }
 
