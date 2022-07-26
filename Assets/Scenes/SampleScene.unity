@@ -719,8 +719,8 @@ Transform:
   - {fileID: 1581432187}
   - {fileID: 1561620513}
   - {fileID: 1923722902}
-  m_Father: {fileID: 5903297865676411686}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1109238898
 GameObject:
@@ -1269,7 +1269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 694c4eb8b5cdd6847987fe1f7cb7cf26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1095283448}
+  player: {fileID: 5903297865676411686}
   orbitSpeed: 10
 --- !u!1 &1561620512
 GameObject:
@@ -1316,7 +1316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 694c4eb8b5cdd6847987fe1f7cb7cf26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1095283448}
+  player: {fileID: 5903297865676411686}
   orbitSpeed: 10
 --- !u!1 &1581432186
 GameObject:
@@ -1363,7 +1363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 694c4eb8b5cdd6847987fe1f7cb7cf26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1095283448}
+  player: {fileID: 5903297865676411686}
   orbitSpeed: 10
 --- !u!1 &1923722901
 GameObject:
@@ -1410,7 +1410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 694c4eb8b5cdd6847987fe1f7cb7cf26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1095283448}
+  player: {fileID: 5903297865676411686}
   orbitSpeed: 10
 --- !u!1 &1943548775
 GameObject:
@@ -2700,7 +2700,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2626205932107007685}
-  - {fileID: 1095283448}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
