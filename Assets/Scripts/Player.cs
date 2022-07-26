@@ -31,7 +31,7 @@ public class Player : MonoBehaviour
 
     bool attackKeyDown;
     float attackDelay;
-    bool isAttackReady;
+    bool isAttackReady = true;
 
     public Weapon equipWeapon;
 
@@ -48,6 +48,19 @@ public class Player : MonoBehaviour
     public int hasGrenade;
     public int maxHasGrenade;
 
+    bool reloadKeyDown;
+
+    public int ammo;
+    public int maxAmmo;
+
+    bool isReload;
+
+    public GameObject grenadeObj;
+
+    bool grenadeKeyDown;
+
+    public Camera followCamera;
+
     private void Awake()
     {
         anim = GetComponentInChildren<Animator>();
@@ -63,6 +76,15 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         rigid.AddForce(Vector3.down * forceGravity);
+
+        StopToWall();
+    }
+
+    bool isBorder = false;
+    void StopToWall()
+    {
+        Debug.DrawRay(transform.position, transform.forward * 5, Color.green);
+        isBorder = Physics.Raycast(transform.position, transform.forward, 5, LayerMask.GetMask("Wall"));
     }
 
     // Update is called once per frame
@@ -80,17 +102,80 @@ public class Player : MonoBehaviour
         swapKeyButton2 = Input.GetButtonDown("Swap2");
         swapKeyButton3 = Input.GetButtonDown("Swap3");
 
-        attackKeyDown = Input.GetButtonDown("Fire1");
+        attackKeyDown = Input.GetButton("Fire1");
+
+        reloadKeyDown = Input.GetButtonDown("Reload");
+
+        grenadeKeyDown = Input.GetButtonDown("Fire2");
 
         Move();
         Jump();
         Dodge();
 
+        Turn();
+
         Attack();
+
+        Reload();
 
         Swap();
 
+        ThrowGrenade();
+
         Interaction();
+    }
+
+    void ThrowGrenade()
+    {
+        if (hasGrenade == 0)
+            return;
+
+        if (grenadeKeyDown && !isReload && !isSwapWeapon && !isDodge)
+        {
+            Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit rayHit;
+            if (Physics.Raycast(ray, out rayHit, 100))
+            {
+                Vector3 nextVec = rayHit.point - transform.position;
+                nextVec.y = 10;
+
+                GameObject instantGrenade = Instantiate(grenadeObj, transform.position, transform.rotation);
+                Rigidbody rigidGrenade = instantGrenade.GetComponent<Rigidbody>();
+                rigidGrenade.AddForce(nextVec, ForceMode.Impulse);
+                rigidGrenade.AddTorque(Vector3.back * 10, ForceMode.Impulse);
+
+                hasGrenade--;
+                grenades[hasGrenade].SetActive(false);
+            }
+        }
+    }
+
+    void Reload()
+    {
+        if (equipWeapon == null)
+            return;
+        if (equipWeapon.type == Weapon.OffenseDistance.Short)
+            return;
+
+        if (ammo == 0)
+            return;
+
+        if (reloadKeyDown && !isJump && !isDodge && !isSwapWeapon && isAttackReady)
+        {
+            anim.SetTrigger("doReload");
+            isReload = true;
+
+            Invoke("ReloadOut", 3f);
+        }
+    }
+
+    void ReloadOut()
+    {
+        int reAmmo = ammo < equipWeapon.maxAmmo ? ammo : equipWeapon.maxAmmo;
+        equipWeapon.curAmmo = reAmmo;
+
+        ammo -= reAmmo;
+        isReload = false;
     }
 
     void Interaction()
@@ -115,15 +200,33 @@ public class Player : MonoBehaviour
         if (isDodge)
             moveVec = dodgeVec;
 
-        if (isSwapWeapon)
+        if (isSwapWeapon || !isAttackReady)
             moveVec = Vector3.zero;
 
-        transform.position += moveVec * speed * (walkKeyDown ? 0.3f : 1f) * Time.deltaTime;
+        if (!isBorder)
+        {
+            transform.position += moveVec * speed * (walkKeyDown ? 0.3f : 1f) * Time.deltaTime;
+        }
 
         anim.SetBool("isRun", moveVec != Vector3.zero);
         anim.SetBool("isWalk", walkKeyDown);
+    }
 
+    void Turn()
+    {
         transform.LookAt(transform.position + moveVec); // 앞으로 가는 방향으로 로테이션
+
+        if (attackKeyDown)
+        {
+            Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit rayHit;
+            if (Physics.Raycast(ray, out rayHit, 100))
+            {
+                Vector3 nextVec = rayHit.point - transform.position;
+                nextVec.y = 0;
+                transform.LookAt(transform.position + nextVec);
+            }
+        }
     }
 
     void Jump()
@@ -208,7 +311,8 @@ public class Player : MonoBehaviour
             equipWeapon.Use();
             attackDelay = 0;
 
-            anim.SetTrigger("doAttack");
+            anim.SetTrigger(equipWeapon.type == Weapon.OffenseDistance.Short 
+                ? "doAttack" : "doShot");
         }
     }
 
@@ -234,6 +338,13 @@ public class Player : MonoBehaviour
 
                 grenades[hasGrenade].SetActive(true);
                 hasGrenade += item.value;
+            }
+            if (item.type == Item.Type.Ammo)
+            {
+                if (ammo >= maxAmmo)
+                    return;
+
+                ammo += item.value;
             }
             Destroy(other.gameObject);
         }

@@ -7,6 +7,10 @@ TagManager:
   - Floor
   - Item
   - Weapon
+  - Bullet
+  - Wall
+  - OffenseShort
+  - OffenseLong
   layers:
   - Default
   - TransparentFX
@@ -16,11 +20,11 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Wall
+  - BulletCase
+  - Player
+  - Floor
+  - PlayerBullet
   - 
   - 
   - 
