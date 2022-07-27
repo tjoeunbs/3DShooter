@@ -61,10 +61,16 @@ public class Player : MonoBehaviour
 
     public Camera followCamera;
 
+    public int health;
+
+    bool isDamage;
+    MeshRenderer[] meshs;
+
     private void Awake()
     {
         anim = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody>();
+        meshs = GetComponentsInChildren<MeshRenderer>();
     }
     // Start is called before the first frame update
     void Start()
@@ -347,6 +353,37 @@ public class Player : MonoBehaviour
                 ammo += item.value;
             }
             Destroy(other.gameObject);
+        }
+        else if (other.tag == "EnemyBullet")
+        {
+            if (isDamage) return;
+
+            Bullet enemyBullet = other.GetComponent<Bullet>();
+            health -= enemyBullet.damage;
+
+            if (!enemyBullet.isShort)
+            {
+                Destroy(other.gameObject);
+            }
+
+            StartCoroutine(OnDamage());
+        }
+    }
+
+    IEnumerator OnDamage()
+    {
+        isDamage = true;
+        foreach(MeshRenderer mesh in meshs)
+        {
+            mesh.material.color = Color.red;
+        }
+
+        yield return new WaitForSeconds(1.0f);
+
+        isDamage = false;
+        foreach (MeshRenderer mesh in meshs)
+        {
+            mesh.material.color = Color.white;
         }
     }
 

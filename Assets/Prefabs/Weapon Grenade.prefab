@@ -163,6 +163,7 @@ MonoBehaviour:
   meshObj: {fileID: 1365275183689808608}
   effectObj: {fileID: 9149296148647161784}
   rigid: {fileID: 3237187316412985049}
+  damage: 500
 --- !u!1 &6390449575078419880
 GameObject:
   m_ObjectHideFlags: 0

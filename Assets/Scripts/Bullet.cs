@@ -6,6 +6,8 @@ public class Bullet : MonoBehaviour
 {
     public int damage;
 
+    public bool isShort;
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Floor")
@@ -16,7 +18,7 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Wall")
+        if (!isShort && other.gameObject.tag == "Wall")
         {
             Destroy(gameObject);
         }

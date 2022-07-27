@@ -11,6 +11,7 @@ TagManager:
   - Wall
   - OffenseShort
   - OffenseLong
+  - EnemyBullet
   layers:
   - Default
   - TransparentFX
@@ -25,8 +26,8 @@ TagManager:
   - Player
   - Floor
   - PlayerBullet
-  - 
-  - 
+  - Enemy
+  - EnemyBullet
   - 
   - 
   - 
